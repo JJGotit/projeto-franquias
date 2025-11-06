@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styles from './franquias.module.css'
 import { Table, Modal, Button, Form, message, Input, Space, Popconfirm, Empty } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ShopOutlined } from '@ant-design/icons'
@@ -15,6 +15,8 @@ function Franquias() {
     const [form] = Form.useForm()
     const [editandoId, setEditandoId] = useState(null);
     const [filtroNome, setFiltroNome] = useState('');
+
+    const toastId = useRef(null) //para resolver problema de toasts duplicados    
 
     async function carregarFranquias(params) {
         try {
@@ -105,7 +107,11 @@ function Franquias() {
     useEffect(() => {
         try {
             carregarFranquias()
-            toast.success('Franquias carregadas com sucesso!')
+            if (!toast.isActive(toastId.current)) {
+                toastId.current = toast.success('Franquias carregadas com sucesso!', {
+                    toastId: 'carregar-franquias-id'
+                })
+            }
         } catch (error) {
             toast.error('Erro ao carregar franquias')
         }

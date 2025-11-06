@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import styles from './funcionarios.module.css'
 import { Table, Modal, Button, Form, Input, InputNumber, Space, Popconfirm, Select, Empty } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons'
@@ -16,6 +16,8 @@ function Funcionarios() {
     const [editandoId, setEditandoId] = useState(null)
     const [form] = Form.useForm()
     const [filtroNome, setFiltroNome] = useState('')
+
+    const toastId = useRef(null) //para resolver problema de toasts duplicados    
 
     async function carregarFuncionarios() {
         try {
@@ -178,11 +180,16 @@ function Funcionarios() {
         try {
             carregarFuncionarios()
             carregarFranquias()
-            toast.success('Funcionários carregados com sucesso!')
+            if (!toast.isActive(toastId.current)) {
+                toastId.current = toast.success('Funcionários carregados com sucesso!', {
+                    toastId: 'carregar-funcionarios-id'
+                })
+            }
         } catch (error) {
             toast.error('Erro ao carregar funcionários e franquias!')
-        }
+        } 
     }, [])
+    
 
     const funcionariosFiltrados = funcionarios.filter(f => {
         const pesquisa = filtroNome.toLowerCase()
@@ -191,7 +198,7 @@ function Funcionarios() {
             f.cargo.toLowerCase().includes(pesquisa) ||
             f.email.toLowerCase().includes(pesquisa)
         )
-    });
+    })
 
     return (
         <div className={styles.container}>
